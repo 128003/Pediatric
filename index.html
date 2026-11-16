@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>小兒復健初診</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* layout: left = click-to-fill form in toggleable sections, right = live plain-text note that stays in view */
+:root{
+  --bg:#EEF2F1; --surface:#FFFFFF; --sunk:#F4F7F6; --band:#DCEBE6;
+  --ink:#15231F; --ink2:#465650; --ink3:#748580; --rule:#CFD9D5;
+  --accent:#17624F; --accent-soft:#DFF0EA; --on-accent:#FFFFFF;
+  --delay:#B3362B; --delay-soft:#FBE7E4; --border:#9A6A00; --border-soft:#FBF0D2; --ok:#1F7A4D; --ok-soft:#E0F2E7;
+  --sans:"IBM Plex Sans","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono","Noto Sans TC",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1614; --surface:#18211E; --sunk:#131B19; --band:#1E2E29;
+  --ink:#E2EAE7; --ink2:#A9B7B2; --ink3:#7C8C87; --rule:#2B3833;
+  --accent:#63C9AC; --accent-soft:#1B332C; --on-accent:#0B1513;
+  --delay:#FF8A7D; --delay-soft:#3A1E1B; --border:#E9BC4E; --border-soft:#342A12; --ok:#6DD39C; --ok-soft:#18301F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1614; --surface:#18211E; --sunk:#131B19; --band:#1E2E29;
+  --ink:#E2EAE7; --ink2:#A9B7B2; --ink3:#7C8C87; --rule:#2B3833;
+  --accent:#63C9AC; --accent-soft:#1B332C; --on-accent:#0B1513;
+  --delay:#FF8A7D; --delay-soft:#3A1E1B; --border:#E9BC4E; --border-soft:#342A12; --ok:#6DD39C; --ok-soft:#18301F; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--rule)}
+.top-in{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding-block:10px}
+.brand{font-weight:700;font-size:17px;color:var(--accent);letter-spacing:.01em}
+.brand small{font-weight:400;font-size:12.5px;color:var(--ink3);margin-left:8px}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tabs a{text-decoration:none;color:var(--ink2);padding:5px 12px;border-radius:6px;font-weight:500}
+.tabs a.on{background:var(--accent);color:var(--on-accent)}
+.btn{border:1px solid var(--rule);background:var(--surface);border-radius:6px;padding:5px 12px;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.warn{border-color:var(--delay);color:var(--delay)}
+.btn.sm{padding:2px 8px;font-size:12.5px}
+
+.wrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;padding-block:16px;align-items:start}
+.form{min-width:0;display:flex;flex-direction:column;gap:14px}
+.pick{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:12px 14px}
+.pick h2{font-size:13px;margin:0 0 8px;font-weight:600;color:var(--ink2)}
+.pick-row{display:flex;flex-wrap:wrap;gap:6px}
+.pick-secs{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px}
+.pick-secs label{display:inline-flex;align-items:center;gap:5px;font-size:13.5px;white-space:nowrap}
+.pick-secs input{accent-color:var(--accent)}
+
+.sec{background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.sec>h2{margin:0;padding:8px 14px;background:var(--band);font-size:15px;font-weight:600;color:var(--accent);display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.sec>h2 small{font-weight:400;font-size:12.5px;color:var(--ink2)}
+.sec-b{padding:10px 14px 12px;display:flex;flex-direction:column;gap:9px}
+.hint{font-size:12.5px;color:var(--ink3);margin:0}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.fld{display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-width:0}
+.fld>.l{color:var(--ink2);font-size:13.5px;font-weight:500;white-space:nowrap}
+.fld.wide{flex:1 1 100%}
+.fld.wide input{flex:1}
+input.t{border:0;border-bottom:1.5px solid var(--rule);background:transparent;padding:2px 3px;min-width:0;border-radius:0}
+input.t:focus{outline:0;border-bottom-color:var(--accent)}
+input.t::placeholder{color:var(--ink3);opacity:.7}
+.suf{color:var(--ink3);font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{border:1px solid var(--rule);background:var(--sunk);border-radius:999px;padding:2px 10px;font-size:13.5px;color:var(--ink2);line-height:1.5}
+.chip small{color:var(--ink3);font-size:11.5px;margin-left:4px}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.chip.on small{color:inherit;opacity:.8}
+.badge{display:inline-block;font-size:12px;font-weight:600;border-radius:4px;padding:1px 7px;white-space:nowrap}
+.badge.delay{background:var(--delay-soft);color:var(--delay)} .badge.border,.badge.watch{background:var(--border-soft);color:var(--border)} .badge.normal{background:var(--ok-soft);color:var(--ok)} .badge.info{background:var(--accent-soft);color:var(--accent)}
+.calc{font-size:13px;color:var(--ink2);background:var(--sunk);border-radius:6px;padding:6px 10px}
+.calc b{color:var(--ink)}
+
+/* milestones */
+.dom{border-top:1px dashed var(--rule);padding-top:9px}
+.dom:first-of-type{border-top:0;padding-top:0}
+.dom-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:6px}
+.dom-h b{font-size:14px}
+.dom-h .sp{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.mi{display:flex;flex-wrap:wrap;gap:4px}
+.m{border:1px solid var(--rule);background:var(--sunk);border-radius:6px;padding:2px 8px;font-size:13px;text-align:left;color:var(--ink2);line-height:1.5}
+.m i{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--ink3);margin-right:5px;font-variant-numeric:tabular-nums}
+.m.y{background:var(--ok-soft);border-color:var(--ok);color:var(--ink)} .m.y::after{content:" ✓";color:var(--ok);font-weight:700}
+.m.n{background:var(--delay-soft);border-color:var(--delay);color:var(--ink)} .m.n::after{content:" ✗";color:var(--delay);font-weight:700}
+.grp{font-size:12.5px;font-weight:600;color:var(--ink2);margin:4px 0 2px;display:flex;gap:8px;align-items:center}
+
+/* assessment */
+.sug{display:flex;flex-direction:column;gap:6px}
+.sg{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:6px;padding:7px 10px;background:var(--sunk)}
+.sg.added{border-left-color:var(--ok);opacity:.7}
+.sg .c{font-family:var(--mono);font-weight:500;white-space:nowrap}
+.sg .w{font-size:12.5px;color:var(--ink2)}
+.sg>div{flex:1;min-width:0}
+.dxl{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+.dxl li{display:flex;gap:8px;align-items:center}
+.dxl input{flex:1}
+.icd-res{max-height:210px;overflow:auto;border:1px solid var(--rule);border-radius:6px}
+.icd-res button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--rule);background:var(--surface);padding:5px 10px;font-size:13.5px}
+.icd-res button:hover{background:var(--accent-soft)}
+.icd-res button span{font-family:var(--mono);margin-right:8px}
+.icd-res button small{color:var(--ink3);margin-left:6px}
+
+/* note */
+.note{position:sticky;top:calc(env(safe-area-inset-top,0px) + 62px);background:var(--surface);border:1px solid var(--rule);border-radius:10px;display:flex;flex-direction:column;height:calc(100vh - 84px - env(safe-area-inset-top,0px));min-width:0}
+.note-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--rule)}
+.note-h b{margin-right:auto}
+.note-h label{font-size:12.5px;color:var(--ink2);display:inline-flex;gap:4px;align-items:center}
+#note{flex:1;min-height:320px;width:100%;border:0;resize:none;background:var(--surface);padding:12px 14px;font-family:var(--mono);font-size:13px;line-height:1.6;white-space:pre-wrap;overflow:auto}
+#note:focus{outline:0}
+.note-f{font-size:12px;color:var(--ink3);padding:6px 12px;border-top:1px solid var(--rule)}
+.mbar{display:none}
+
+/* tools */
+.tools{padding-block:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px;align-items:start}
+.tools .sec.full{grid-column:1/-1}
+.tool-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.out{min-height:26px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+table.r{border-collapse:collapse;width:100%;font-size:13.5px}
+table.r th,table.r td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:left;vertical-align:top}
+table.r th{font-weight:600;color:var(--ink2);font-size:12.5px;background:var(--sunk)}
+table.r td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tw{overflow-x:auto}
+details{border-top:1px solid var(--rule);padding:8px 0}
+details:first-of-type{border-top:0}
+summary{font-weight:600;cursor:pointer}
+details ul{margin:6px 0 0;padding-left:1.2em}
+details li{margin:3px 0}
+.fix{background:var(--border-soft);color:var(--ink);border-radius:3px;padding:0 3px}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr}
+  .note{position:static;height:auto}
+  #note{min-height:260px}
+  .brand small{display:none}
+  .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:9;gap:8px;background:var(--surface);border-top:1px solid var(--rule);padding:8px max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+  .mbar .btn{flex:1;padding:8px}
+  .wrap{padding-bottom:70px}
+}
+</style>
+
+</head>
+<body>
+<header class="top"><div class="top-in gut">
+  <span class="brand">小兒復健 · 初診<small>邊問邊點，右側即時生成病歷</small></span>
+  <nav class="tabs"><a href="#intake" id="tab-intake">初診</a><a href="#tools" id="tab-tools">評量換算</a></nav>
+  <button class="btn warn" id="clearBtn">清空，下一位</button>
+</div></header>
+
+<main id="v-intake" class="wrap gut">
+  <div class="form" id="form"></div>
+  <aside class="note" id="notePane">
+    <div class="note-h"><b>病歷預覽</b><label><input type="checkbox" id="keepEmpty"> 保留空白欄位</label><button class="btn pri" id="copyBtn">複製病歷</button></div>
+    <textarea id="note" readonly spellcheck="false" aria-label="病歷內容"></textarea>
+    <div class="note-f">內容只留在這個分頁，關閉分頁即清除；請勿輸入姓名或病歷號。DA、DQ 與建議診斷為門診初估，需由你確認。</div>
+  </aside>
+</main>
+<main id="v-tools" class="tools gut" hidden></main>
+<div class="mbar"><button class="btn" id="jumpNote">看病歷</button><button class="btn pri" id="copyBtn2">複製病歷</button></div>
+
+<script>
+/* ---------- form schema ---------- */
+const SECTIONS = [
+{id:'info',t:'Patient Info',zh:'基本資料',rows:[
+ [{id:'ageY',l:'Age',type:'num',suf:'y'},{id:'ageM',type:'num',suf:'m'},{id:'sex',type:'one',opts:['boy','girl']}],
+ [{id:'with',l:'Come with',type:'multi',opts:['mother','father','both parents','grandmother','grandfather','nanny'],x:1}],
+ [{id:'bh',l:'BH',type:'num',suf:'cm',w:5},{id:'bw',l:'BW',type:'num',suf:'kg',w:5},{id:'hc',l:'HC',type:'num',suf:'cm',w:5}],
+ [{id:'und',l:'Underlying',type:'multi',opts:['nil','prematurity','cerebral palsy','epilepsy','Down syndrome','congenital heart disease'],x:1}],
+ [{id:'cc',l:'C.C',type:'multi',opts:['gross motor delay|粗動作慢','fine motor delay|精細動作慢','speech delay|語言慢','unclear articulation|構音不清','stuttering|口吃','global developmental delay|整體慢','inattention / hyperactivity|不專心/過動','poor social interaction|社交互動差','learning difficulty|學習困難','clumsiness|動作笨拙','torticollis|斜頸','toe-in gait|內八','toe walking|墊腳尖','flat foot|扁平足','bow legs / knock knees|O/X型腿','scoliosis|脊柱側彎'],x:1}],
+ [{id:'concern',l:'Most concern',type:'text',wide:1,ph:'家長最擔心的事'}],
+ [{id:'refer',l:'Refer from',type:'one',opts:['pediatrics','well-baby clinic','teacher','other hospital','self-referred'],x:1}]
+]},
+{id:'birth',t:'Birth History',zh:'出生史',rows:[
+ [{id:'g',l:'G',type:'num'},{id:'p',l:'P',type:'num'},{id:'ga',l:'GA',type:'num',suf:'wk',w:4},{id:'mode',type:'one',opts:['NSD','C/S','vacuum-assisted']}],
+ [{id:'csr',l:'C/S reason',type:'multi',opts:['malpresentation|胎位不正','twins|雙胞胎','placenta previa|前置胎盤','macrosomia|胎兒太大','previous C/S|前次剖腹','fetal distress|胎兒窘迫','prolonged labor|產程遲滯'],x:1,when:f=>f.mode==='C/S'}],
+ [{id:'bbw',l:'BBW',type:'num',suf:'gm',w:6}],
+ [{id:'peri',l:'Perinatal history',type:'multi',opts:['uneventful','NICU admission','neonatal jaundice s/p phototherapy','respiratory distress','intubation','IVH','PVL','asphyxia / HIE','neonatal seizure','hypoglycemia','sepsis','GDM','preeclampsia','PPROM'],x:1}],
+ [{id:'hosp',l:'Hospitalization',type:'one',opts:['nil'],x:1}],
+ [{id:'opd',l:'OPD follow-up',type:'one',opts:['nil'],x:1,ph:'科別 / 醫院'}],
+ [{id:'oae',l:'OAE 聽力篩檢',type:'one',opts:['passed','failed','unknown']}]
+]},
+{id:'dev',t:'Developmental Milestones',zh:'里程碑病史（家長回憶）',note:'填年齡，例如 7m、1y2m；還不會填 not yet。',rows:[
+ [{id:'d_sit',l:'GM　sit without support',type:'text',w:6,ph:'7–9m'},{id:'d_stand',l:'stand',type:'text',w:6,ph:'9–12m'},{id:'d_walk',l:'walk',type:'text',w:6,ph:'12–15m'},{id:'d_jump',l:'jump',type:'text',w:6,ph:'2–2.5y'},{id:'d_stair',l:'stairs',type:'text',w:6,ph:'18–24m'}],
+ [{id:'d_grasp',l:'FM　grasp',type:'text',w:6,ph:'3–4m'},{id:'d_pincer',l:'pincer grasp',type:'text',w:6,ph:'9–12m'},{id:'d_block',l:'throw ball / piling up',type:'text',w:6,ph:'18m'},{id:'d_knob',l:'door knob / turn page',type:'text',w:6,ph:'2y'}],
+ [{id:'d_word',l:'Speech　first word',type:'text',w:6,ph:'12m'},{id:'d_phrase',l:'phrase & short sentences',type:'text',w:6,ph:'2y'}],
+ [{id:'d_regress',l:'Regression',type:'one',opts:['no','yes'],x:1}],
+ [{id:'feed',l:'Feeding 副食品',type:'multi',opts:['milk only','puree','soft solid','regular solid diet','picky eater|挑食','chewing difficulty|咀嚼差','choking|易嗆','drooling|流口水','still bottle feeding','pacifier use|奶嘴'],x:1}]
+]},
+{id:'school',t:'School / Early Intervention',zh:'就學與早療',rows:[
+ [{id:'sch',l:'School',type:'one',opts:['not yet','public daycare|公托','private daycare|私托','public preschool|公幼','private preschool|私幼','elementary school'],x:1,ph:'年級'}],
+ [{id:'cls',l:'Class',type:'multi',opts:['regular class|普通班','special education class|特教班','itinerant service|巡迴輔導','resource room|資源班','inclusive class|融合班']}],
+ [{id:'perf',l:'School performance',type:'text',wide:1,ph:'學業 / 體育 / 老師回饋'}],
+ [{id:'ei',l:'Early intervention',type:'multi',opts:['none','PT','OT','ST','psychology'],x:1,ph:'地點、頻率'}]
+]},
+{id:'family',t:'Family',zh:'家庭',rows:[
+ [{id:'fa_age',l:'Father',type:'num',suf:'y/o',w:3},{id:'fa_edu',type:'one',opts:['junior high','senior high','college','master','PhD']},{id:'fa_job',type:'text',w:10,ph:'工作'}],
+ [{id:'mo_age',l:'Mother',type:'num',suf:'y/o',w:3},{id:'mo_edu',type:'one',opts:['junior high','senior high','college','master','PhD']},{id:'mo_job',type:'text',w:10,ph:'工作'}],
+ [{id:'sib',l:'Siblings',type:'one',opts:['only child'],x:1,ph:'排行、手足發展'}],
+ [{id:'fhx',l:'Family history',type:'multi',opts:['nil','developmental delay','ASD','ADHD','speech delay','epilepsy','intellectual disability'],x:1}],
+ [{id:'cg',l:'Caregiver',type:'multi',opts:['mother','father','grandparents','nanny']},{id:'cg_t',type:'one',opts:['daytime|日間','nighttime|夜間','24 hr','weekdays|上班日']}],
+ [{id:'care',l:'Care',type:'multi',opts:['basic care','playing together regularly|陪玩','reading regularly|看書','parent-child center|親子館','park|公園','screen time > 1 hr/day|3C']},{id:'lang',l:'Home language',type:'multi',opts:['Mandarin','Taiwanese','English'],x:1}]
+]},
+{id:'ms',t:'Developmental Assessment',zh:'里程碑檢核 → 估計 DA / DQ',custom:'ms'},
+{id:'pe',t:'PE Summary',zh:'理學檢查',rows:[
+ [{id:'pe_gen',l:'General',type:'multi',opts:['alert','cooperative','shy','irritable','restless during visit','no dysmorphic feature'],x:1}],
+ [{id:'pe_eye',l:'Eye contact',type:'one',opts:['good','fair','poor']},{id:'pe_name',l:'Response to name',type:'one',opts:['consistent','inconsistent','absent']},{id:'pe_ja',l:'Joint attention',type:'one',opts:['present','limited','absent']}],
+ [{id:'pe_tone',l:'Muscle tone',type:'multi',opts:['normal','hypotonia','hypertonia','spasticity','dystonia'],x:1,ph:'部位'}],
+ [{id:'pe_rom',l:'ROM',type:'one',opts:['full'],x:1,ph:'受限部位'},{id:'pe_mp',l:'Muscle power',type:'one',opts:['grossly normal'],x:1,ph:'無力部位'}],
+ [{id:'pe_dtr',l:'DTR',type:'one',opts:['normal (++)','hyperreflexia','hyporeflexia']},{id:'pe_prim',l:'Primitive reflex',type:'one',opts:['integrated','persistent'],x:1,ph:'哪些'}],
+ [{id:'pe_gait',l:'Gait',type:'multi',opts:['normal','not yet ambulatory','wide-based','toe walking','in-toeing','out-toeing','crouch','Trendelenburg','limping'],x:1}],
+ [{id:'pe_post',l:'Postural reaction',type:'multi',opts:['head righting (+)','protective extension (+)','parachute (+)','delayed'],x:1}]
+]},
+{id:'speech',t:'Speech & Articulation',zh:'構音、口腔動作、流暢度',rows:[
+ [{id:'sp_int',l:'Intelligibility',type:'one',opts:['< 50%','50–75%','75–90%','> 90%']},{id:'sp_comp',l:'Comprehension',type:'one',opts:['age-appropriate','limited']}],
+ [{id:'sp_err',l:'Error sounds',type:'multi',opts:['ㄅ','ㄇ','ㄉ','ㄋ','ㄍ','ㄏ','ㄆ','ㄊ','ㄎ','ㄌ','ㄈ','ㄐ','ㄒ','ㄑ','ㄗ','ㄙ','ㄘ','ㄓ','ㄔ','ㄕ','ㄖ'],x:1,ph:'替代/省略型態'}],
+ [{id:'sp_oral',l:'Oral motor',type:'multi',opts:['normal','drooling','poor chewing','limited tongue mobility','tongue-tie','hypernasality','cleft lip/palate','malocclusion'],x:1}],
+ [{id:'sp_flu',l:'Fluency',type:'multi',opts:['fluent','syllable repetition','prolongation','blocks','secondary behavior (blinking, fist, stomping)','awareness / avoidance','> 6 months'],x:1}]
+]},
+{id:'asd',t:'ASD Checklist',zh:'DSM-5 特徵勾選',custom:'asd'},
+{id:'adhd',t:'ADHD Checklist',zh:'DSM-5 症狀勾選（≥6 個月）',custom:'adhd'},
+{id:'tort',t:'Torticollis',zh:'斜頸',rows:[
+ [{id:'t_side',l:'Head tilt to',type:'one',opts:['right','left']},{id:'t_rot',l:'Chin rotates to',type:'one',opts:['right','left']},{id:'t_onset',l:'Noted at',type:'text',w:7,ph:'2 wk'}],
+ [{id:'t_mass',l:'SCM mass',type:'one',opts:['not palpable','palpable'],x:1,ph:'大小'},{id:'t_rrot',l:'Passive rotation R/L',type:'text',w:8,ph:'90/70'},{id:'t_lat',l:'Lateral flexion R/L',type:'text',w:8,ph:'45/30'}],
+ [{id:'t_assoc',l:'Associated',type:'multi',opts:['plagiocephaly','facial asymmetry','hip click / limited abduction','preferred head turning','ocular cause not excluded'],x:1}]
+]},
+{id:'le',t:'Lower Limb',zh:'下肢與步態',note:'角度填度數；內轉或內八填負值。',rows:[
+ [{id:'le_ir',l:'Hip IR R/L',type:'pair',suf:'°'},{id:'le_er',l:'Hip ER R/L',type:'pair',suf:'°'}],
+ [{id:'le_tfa',l:'Thigh-foot angle R/L',type:'pair',suf:'°'},{id:'le_fpa',l:'Foot progression angle R/L',type:'pair',suf:'°'}],
+ [{id:'le_hbl',l:'Heel bisector line',type:'one',opts:['2nd–3rd toe (normal)','lateral to 3rd toe']},{id:'le_heel',l:'Hindfoot',type:'one',opts:['neutral','valgus','varus']}],
+ [{id:'le_icd',l:'Intercondylar distance',type:'num',suf:'cm',w:4},{id:'le_imd',l:'Intermalleolar distance',type:'num',suf:'cm',w:4}],
+ [{id:'le_arch',l:'Arch',type:'one',opts:['normal','flexible flat foot','rigid flat foot']},{id:'le_nav',l:'Navicular drop',type:'num',suf:'cm',w:4},{id:'le_tmt',l:'Too many toes',type:'one',opts:['(-)','(+) bilateral','(+) unilateral']}],
+ [{id:'le_asis',l:'ASIS–MM R/L',type:'pair',suf:'cm'},{id:'le_umb',l:'Umbilicus–MM R/L',type:'pair',suf:'cm'}],
+ [{id:'le_sym',l:'Symptoms',type:'multi',opts:['no pain','pain after walking','frequent falls','easy fatigue','W-sitting'],x:1}]
+]},
+{id:'sco',t:'Scoliosis',zh:'脊柱側彎',rows:[
+ [{id:'s_sh',l:'Inspection',type:'multi',opts:['shoulders level','shoulder asymmetry','pelvic obliquity','trunk shift'],x:1}],
+ [{id:'s_adam',l:'Adam forward bend',type:'one',opts:['(-)','rib hump right','rib hump left','lumbar prominence']},{id:'s_atr',l:'Scoliometer',type:'num',suf:'°',w:4}],
+ [{id:'s_shape',l:'Curve',type:'one',opts:['C','S']},{id:'s_loc',type:'one',opts:['thoracic','thoracolumbar','lumbar']},{id:'s_conv',l:'convex to',type:'one',opts:['right','left']}],
+ [{id:'s_cobb',l:'Cobb angle',type:'num',suf:'°',w:4},{id:'s_lvl',l:'End vertebrae',type:'text',w:8,ph:'T5–T11'},{id:'s_risser',l:'Risser',type:'one',opts:['0','1','2','3','4','5']}],
+ [{id:'s_men',l:'Menarche',type:'one',opts:['not yet','< 2 yr ago','> 2 yr ago','N/A']},{id:'s_sx',l:'Symptoms',type:'multi',opts:['no pain','back pain','dyspnea','neurologic deficit'],x:1}]
+]},
+{id:'tests',t:'Standardized Tests',zh:'標準化評估結果',custom:'tests'},
+{id:'ax',t:'Assessment',zh:'診斷（ICD-10）',custom:'ax'},
+{id:'plan',t:'Plan',zh:'處置',custom:'plan'}
+];
+
+const PRESETS = [
+ ['發展遲緩',['info','birth','dev','school','family','ms','pe','tests','ax','plan']],
+ ['語言 / 構音',['info','birth','dev','school','family','ms','pe','speech','ax','plan']],
+ ['ASD / ADHD',['info','birth','dev','school','family','ms','pe','asd','adhd','ax','plan']],
+ ['斜頸',['info','birth','pe','tort','ax','plan']],
+ ['下肢 / 步態',['info','birth','dev','pe','le','ax','plan']],
+ ['脊柱側彎',['info','sco','le','ax','plan']],
+ ['全部',SECTIONS.map(s=>s.id)]
+];
+
+/* ---------- milestones: [expected-by month, English, 中文] ---------- */
+const MS = {
+gm:{t:'Gross motor',zh:'粗動作',items:[
+ [2,'head up in prone','趴著抬頭'],[4,'stable head control','頭控穩'],[4,'prone on elbows','手肘撐'],[4,'roll to side','翻一半'],
+ [6,'prone on hands','手掌撐'],[6,'roll prone to supine','趴翻仰'],[6,'sit with hand support','手撐坐'],[7,'roll supine to prone','仰翻趴'],
+ [9,'sit up and sit stably','自己坐起坐穩'],[10,'crawl reciprocally','手腳交替爬'],[12,'pull to stand','拉著站起'],[12,'cruising','扶著走'],
+ [15,'walk alone','獨立走'],[18,'stand up from squat without support','蹲到站不用扶'],[18,'walk upstairs with support','牽著上樓'],
+ [24,'run','跑'],[24,'stairs up and down with rail','扶手上下樓'],[30,'jump with both feet','雙腳跳'],
+ [36,'stairs without support','不扶上下樓'],[36,'upstairs step over step','一腳一階上樓'],
+ [48,'downstairs step over step','一腳一階下樓'],[48,'stand on one foot 3 s / hop 2 times','單腳站 3 秒、單腳跳 2 下'],
+ [60,'stand on one foot 5–10 s / hop 5 times','單腳站 5–10 秒、單腳跳 5 下']]},
+fm:{t:'Fine motor',zh:'精細動作',items:[
+ [2,'hands open','手打開'],[3,'hands to mouth / midline','手到嘴、到中線'],[4,'hold and shake objects','抓東西搖'],[6,'raking grasp','整個手掌撈'],
+ [9,'crude pincer grasp','指腹夾'],[12,'mature pincer grasp','指尖夾'],[15,'finger feeding','手抓食物吃'],
+ [18,'stack 2 blocks','疊 2 個積木'],[18,'scribble','塗鴉'],[18,'throw ball','丟球'],[18,'take off socks','脫襪子'],[18,'palmar grasp of pen','手掌握筆'],
+ [24,'stack 4–6 blocks','疊 4–6 個'],[24,'draw a line','畫直線'],[24,'use spoon and cup','湯匙和杯子'],[30,'take off loose pants','脫褲子'],
+ [36,'stack 10 blocks','疊 10 個'],[36,'copy circle','畫圓'],[36,'put on pants','穿褲子'],[36,'digital grasp of pen','手指握筆'],
+ [48,'copy cross','畫十字'],[48,'static tripod grasp','靜態三點握筆'],[48,'overhand throw','過肩丟球'],
+ [54,'copy square','畫正方形'],[60,'copy triangle / draw a person','畫三角形或人'],[60,'catch ball','接球'],
+ [72,'copy diamond','畫菱形'],[72,'dynamic tripod grasp','動態三點握筆']]},
+lang:{t:'Language',zh:'語言',items:[
+ [3,'cooing','咕咕聲'],[6,'babbling','牙牙學語'],[9,'gestures for needs','伸手要抱'],[9,'understands "no"','理解「不」'],
+ [12,'specific papa / mama','有意義叫爸媽'],[12,'responds to name','叫名有反應'],[15,'points for needs','用指的表達'],
+ [18,'5–10 words','5–10 個單字'],[18,'identifies some body parts','認身體部位'],[18,'follows simple commands','簡單指令'],
+ [24,'two-word phrases','兩字詞'],[24,'> 50 words','超過 50 個單字'],[24,'one-step commands','單步驟指令'],
+ [30,'pronouns','你我他'],[36,'simple back-and-forth conversation','簡單來回對話'],[36,'tells name, age, sex','說名字年紀性別'],
+ [48,'reports events / retells short stories','敘述事件、複述故事'],[60,'tells stories in complete sentences','完整敘述故事'],[60,'relationships and digits','人際關係、數字']]},
+cog:{t:'Cognition',zh:'認知',items:[
+ [2,'visual pursuit','視覺追視'],[4,'watches own hands','看自己的手'],[6,'reaches for toys','伸手抓玩具'],[7,'finds partially hidden object','找部分遮住的東西'],
+ [9,'sensorimotor play','搖敲拍丟'],[12,'finds fully hidden object','找完全藏起的東西'],[12,'container play','放進倒出容器'],
+ [18,'functional play','功能性遊戲'],[18,'matches one shape','配對一個形狀'],[20,'3-piece form board','三塊形狀板'],
+ [24,'simple pretend play','假扮遊戲'],[24,'2-piece puzzle','兩塊拼圖'],[27,'matches pictures / colors','配對圖片顏色'],[30,'two-step commands','兩步驟指令'],
+ [36,'knows one color, size concept','認一種顏色、大小'],[36,'symbolic play','象徵性遊戲'],
+ [48,'names basic colors, counts to 5, direction','基本顏色、數到 5、方向'],
+ [60,'names digits, counts to 10, date','數字、數到 10、日期'],[60,'attention > 10 min','注意力超過 10 分鐘'],[60,'role play','角色扮演']]},
+soc:{t:'Psychosocial / play',zh:'社會情緒',items:[
+ [3,'social smile','社交性微笑'],[4,'recognizes familiar faces','認熟人'],[6,'laughs','笑出聲'],[8,'stranger anxiety','怕生'],[9,'peek-a-boo','躲貓貓'],
+ [18,'waves bye / high five','揮手再見、擊掌'],[18,'imitates, shows and shares with parents','模仿、展示分享'],
+ [24,'interested in other children','對小孩有興趣'],[24,'own ideas, says "I"','有主見、說「我」'],
+ [36,'takes turns','輪流'],[36,'shows concern, helps','關心、幫忙'],[48,'simple rule games, plays with peers','簡單規則遊戲、和同儕玩'],[48,'sits for class','上課坐得住'],
+ [60,'games with rules, rich role play','規則遊戲、豐富角色扮演']]}
+};
+const DOMS = ['gm','fm','lang','cog','soc'];
+
+/* ---------- ASD: [group, note phrase, 中文] ---------- */
+const ASD = [
+ ['A1','limited social approach, prefers solitary play','比較喜歡自己玩'],['A1','no back-and-forth conversation','沒有來回對話'],
+ ['A1','reduced sharing of interests and emotions','少分享興趣情感'],['A1','does not initiate social interaction or group play','不主動發起互動'],
+ ['A1','lack of sharing / showing behavior','少展示分享'],['A1','no spontaneous imitation','不會自發模仿'],['A1','does not offer comfort','不會安慰人'],
+ ['A2','poorly integrated verbal and nonverbal communication','口語與非口語不協調'],['A2','poor eye contact','眼神接觸差'],
+ ['A2','lack of instrumental gestures','少工具性手勢'],['A2','limited facial expression','表情少'],
+ ['A3','difficulty adjusting behavior to social contexts','不會看場合'],['A3','lack of imaginative play','少想像遊戲'],['A3','no interest in peers','對同儕沒興趣'],
+ ['B1','motor stereotypies','刻板動作'],['B1','lining up toys','排列玩具'],['B1','echolalia','仿說'],['B1','toe walking','墊腳走路'],
+ ['B2','distress at small changes','無法承受小變化'],['B2','rigid thinking','思考僵化'],['B2','rituals','儀式行為'],['B2','inflexible adherence to routines','堅持慣例'],
+ ['B3','unusual attachment to objects','對物品異常執著'],['B3','restricted, fixated interests','興趣侷限而強烈'],
+ ['B4','hyperreactivity to sensory input','感覺過度敏感'],['B4','hyporeactivity / sensory seeking','感覺遲鈍、自我刺激']
+];
+const ASDG = {A1:'Social-emotional reciprocity',A2:'Nonverbal communication',A3:'Relationships',B1:'Stereotyped / repetitive',B2:'Insistence on sameness',B3:'Restricted interests',B4:'Sensory'};
+const ADHD_I = [['poor sustained attention','注意力渙散'],['appears not to listen','聽而不聞'],['difficulty organizing tasks','組織困難'],['avoids tasks requiring sustained mental effort','逃避費心的任務'],['often loses things','弄丟東西'],['easily distracted','容易分心'],['often forgetful','健忘'],['overlooks details, careless mistakes','粗心'],['fails to finish tasks','無法完成任務']];
+const ADHD_H = [['fidgeting','手腳躁動'],['leaves seat','擅離座位'],['runs / climbs inappropriately','不當跑跳'],['unable to play quietly','無法安靜'],['on the go, driven by a motor','像裝了馬達'],['talks excessively','話多'],['blurts out answers','搶答'],['difficulty waiting turn','難以等待'],['interrupts or intrudes','打斷或侵擾']];
+
+/* ---------- ICD-10 ---------- */
+const ICD = [
+ ['F88','Global developmental delay','GDD，僅限 5 歲以下、暫時性診斷；至少兩個領域遲緩'],
+ ['F89','Unspecified neurodevelopmental disorder','講義：四項皆遲緩'],
+ ['R62.0','Delayed milestone in childhood','單一領域動作慢、未達其他診斷（補充）'],
+ ['R62.50','Unspecified lack of expected normal physiological development','補充'],
+ ['F70','Mild intellectual disability','IQ 50–55 至約 70'],['F71','Moderate intellectual disability','IQ 35–40 至 50–55'],
+ ['F72','Severe intellectual disability','IQ 20–25 至 35–40'],['F73','Profound intellectual disability','IQ 低於 20–25'],
+ ['F78','Other intellectual disabilities','其他基因相關'],['F79','Unspecified intellectual disability',''],
+ ['F80.9','Developmental language disorder','3 歲後才稱 DLD；3 歲前為 late talker'],
+ ['F80.1','Expressive language disorder','補充'],['F80.2','Mixed receptive-expressive language disorder','補充'],
+ ['F80.0','Speech sound disorder','4 歲應 90–100% 聽得懂；8 歲語音成熟'],
+ ['F80.81','Childhood-onset fluency disorder (stuttering)','2–7 歲；與 2–3.5 歲正常不流暢區別'],
+ ['F80.82','Social (pragmatic) communication disorder','學齡才診斷；無侷限重複行為'],
+ ['F84.0','Autism spectrum disorder','2 歲可診斷'],
+ ['F90.0','ADHD, predominantly inattentive type','4 歲後診斷；12 歲前出現'],['F90.1','ADHD, predominantly hyperactive-impulsive type',''],['F90.2','ADHD, combined type',''],
+ ['F81.0','Specific learning disorder, reading (dyslexia)','學齡'],['F81.81','Specific learning disorder, written expression (dysgraphia)','學齡'],['F81.2','Specific learning disorder, mathematics (dyscalculia)','學齡'],
+ ['F82','Developmental coordination disorder','4 歲以上才診斷；排除神經與認知問題'],
+ ['F98.4','Stereotyped movement disorder',''],['F95.2','Tourette\'s disorder',''],['F95.1','Chronic motor or vocal tic disorder','補充'],['F95.0','Transient tic disorder','補充'],
+ ['G80.1','Spastic diplegic cerebral palsy','補充'],['G80.2','Spastic hemiplegic cerebral palsy','補充'],['G80.0','Spastic quadriplegic cerebral palsy','補充'],['G80.3','Athetoid (dyskinetic) cerebral palsy','補充'],['G80.4','Ataxic cerebral palsy','補充'],['G80.9','Cerebral palsy, unspecified','補充'],
+ ['Q68.0','Congenital muscular torticollis','補充'],['M43.6','Torticollis','補充'],['Q67.3','Plagiocephaly','補充'],
+ ['Q65.89','Increased femoral anteversion','補充'],['M21.869','Internal tibial torsion','補充；側別請改末碼'],['Q66.229','Metatarsus adductus','補充；側別請改末碼'],
+ ['R26.89','Other abnormalities of gait (in-toeing / toe walking)','補充'],
+ ['M21.40','Flat foot (pes planus)','補充'],['Q66.50','Congenital pes planus','補充'],
+ ['M21.169','Genu varum (bow legs)','補充'],['M21.069','Genu valgum (knock knees)','補充'],['M21.70','Leg length discrepancy','補充；差 2 cm 以上'],
+ ['M41.00','Infantile idiopathic scoliosis','3 歲以下（補充）'],['M41.119','Juvenile idiopathic scoliosis','3–10 歲（補充）'],['M41.129','Adolescent idiopathic scoliosis','10 歲以上（補充）'],
+ ['M41.40','Neuromuscular scoliosis','補充'],['Q67.5','Congenital deformity of spine','補充'],
+ ['Q90.9','Down syndrome','補充'],['P07.30','Preterm newborn','補充'],['Q05.9','Spina bifida','補充']
+];
+
+const PLANS = [
+ 'Arrange joint evaluation (PT / OT / ST / psychology)|聯合評估','Arrange PT evaluation and training','Arrange OT evaluation and training','Arrange ST evaluation and training','Arrange psychological evaluation',
+ 'Hearing evaluation|聽力檢查','Refer to pediatric neurology for EEG|r/o absence seizure','Refer to child psychiatry','Refer to ophthalmology','Refer to genetics',
+ 'SNAP-IV by parent and teacher','M-CHAT-R/F|幼兒自閉症篩檢','Neck sonography','Pelvis / hip X-ray','Lower limb X-ray (standing, scanogram)','Whole spine X-ray',
+ 'Insoles / orthosis','Brace','Home program education|居家運動衛教','Stretching and positioning education','Early intervention notification|早療通報','Issue certificate of developmental delay|發展遲緩證明','Parenting education: reduce screen time, increase interaction'
+];
+const AUTOPLAN = [
+ [/^(F88|F89|R62)/,[0,20]],[/^F80\.(9|1|2)/,[5,3]],[/^F80\.0/,[5,3]],[/^F80\.81/,[3]],[/^F84/,[0,7,11]],[/^F90/,[10,6,7]],
+ [/^F82/,[1,2]],[/^F7/,[0]],[/^(Q68\.0|M43\.6)/,[12,19,1]],[/^M41|^Q67\.5/,[15]],[/^(M21\.4|Q66\.5)/,[16,18]],[/^(M21\.1|M21\.0|M21\.7)/,[14]],[/^(Q65|M21\.86|Q66\.2|R26)/,[18]]
+];
+
+/* ---------- scoring tools ---------- */
+const TOOLS = [
+ {id:'cdiit',n:'CDIIT',zh:'嬰幼兒綜合發展測驗',unit:'DQ',ph:'例：72',note:'DQ 平均 100、SD 15。遲緩 < −2 SD（DQ < 70）；臨界 −1.5 至 −2 SD（DQ 70–77），也有人用 −1 至 −2 SD。',
+  f:v=>v<70?['delay','< −2 SD']:v<77.5?['border','−1.5 to −2 SD']:v<85?['watch','−1 to −1.5 SD（寬鬆定義下為臨界）']:['normal','within −1 SD']},
+ {id:'bayley',n:'Bayley-III / WPPSI-IV',zh:'複合分數',unit:'composite',ph:'例：78',note:'≥ 90 正常；80–89 正常中下；70–79 臨界（約 PR 3–8）；≤ 69 遲緩。另外留意分測驗間的內在不一致。',
+  f:v=>v<=69?['delay','≤ 69']:v<=79?['border','70–79']:v<=89?['watch','80–89 low average']:['normal','≥ 90']},
+ {id:'pdms',n:'PDMS-2',zh:'皮巴迪動作發展量表',unit:'quotient',ph:'GMQ / FMQ / TMQ',note:'商數 ≤ 79 遲緩；80–89 臨界。',
+  f:v=>v<=79?['delay','≤ 79']:v<=89?['border','80–89']:['normal','≥ 90']},
+ {id:'mabc',n:'Movement ABC-2',zh:'動作協調',unit:'PR',ph:'百分位',note:'PR < 5 遲緩；5–15 臨界；> 15 正常。3 歲半以後才能施測，DCD 4 歲以上才診斷。',
+  f:v=>v<5?['delay','PR < 5']:v<=15?['border','PR 5–15']:['normal','PR > 15']},
+ {id:'pls',n:'學前兒童語言障礙評量表',zh:'T 分數',unit:'T',ph:'例：35',note:'T ≥ 40 正常；30–39 臨界（−1 至 −2 SD）；≤ 29 遲緩（−2 SD）。',
+  f:v=>v<=29?['delay','T ≤ 29']:v<=39?['border','T 30–39']:['normal','T ≥ 40']},
+ {id:'clst',n:'CLST',zh:'兒童口語理解測驗',unit:'z (SD)',ph:'例：-1.7',note:'低於 −1.5 SD 視為遲緩。',
+  f:v=>v<-1.5?['delay','< −1.5 SD']:v<-1?['watch','−1 to −1.5 SD']:['normal','within −1 SD']}
+];
+const STLBL = {delay:'delay',border:'borderline',watch:'low average',normal:'normal'};
+
+</script>
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY='pedintake-v1';
+const FIELDS={}; SECTIONS.forEach(s=>(s.rows||[]).forEach(r=>r.forEach(f=>FIELDS[f.id]=f)));
+const fresh=()=>({on:Object.fromEntries(PRESETS[0][1].map(i=>[i,true])),f:{},ms:{},st:{},asd:{},adI:{},adH:{},dx:[],plan:[],tests:[],showAll:false,keep:false});
+let S=fresh();
+try{const r=sessionStorage.getItem(KEY); if(r) S=Object.assign(fresh(),JSON.parse(r));}catch(e){}
+const save=()=>{try{sessionStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+
+/* ---------- values ---------- */
+const num=id=>{const v=S.f[id]; return v===''||v==null||isNaN(+v)?null:+v;};
+const en=o=>o.split('|')[0];
+function V(id){
+  const f=FIELDS[id]; if(!f) return S.f[id]||'';
+  if(f.type==='pair'){const r=S.f[id+'_r'],l=S.f[id+'_l']; return (r||l)?`${r||'?'}/${l||'?'}`:'';}
+  if(f.type==='multi') return [...(S.f[id]||[]),S.f[id+'_x']].filter(Boolean).join(', ');
+  if(f.type==='one') return [S.f[id],S.f[id+'_x']].filter(Boolean).join(', ');
+  return S.f[id]||'';
+}
+const CA=()=>{const y=num('ageY'),m=num('ageM'); return y==null&&m==null?null:(y||0)*12+(m||0);};
+const corr=()=>{const ca=CA(),ga=num('ga'); if(ca==null||ga==null||ga>=37||ca>=24) return null; return Math.max(0,Math.round((ca-(40-ga)*7/30.4375)*10)/10);};
+const AA=()=>{const c=corr(); return c!=null?c:CA();};
+const fmtM=m=>m<24?`${Math.round(m*10)/10}m`:`${Math.floor(m/12)}y${Math.round(m%12)?Math.round(m%12)+'m':''}`;
+const ageStr=()=>{const y=num('ageY'),m=num('ageM'); return (y?y+'y':'')+(m||(!y&&m===0)?m+'m':'');};
+const bbwClass=()=>{const b=num('bbw'); return b==null?'':b<1000?'ELBW':b<1500?'VLBW':b<2500?'LBW':'';};
+const termStr=()=>{const g=num('ga'); return g==null?'':g<28?'extremely preterm':g<32?'very preterm':g<37?'preterm':g>=42?'post-term':'full term';};
+
+/* ---------- milestones ---------- */
+function domCalc(d){
+  const it=MS[d].items, pass=[], fail=[];
+  it.forEach((x,i)=>{const v=S.ms[d+i]; if(v===1) pass.push(x); else if(v===0) fail.push(x);});
+  if(!pass.length&&!fail.length) return null;
+  const ff=fail.length?Math.min(...fail.map(x=>x[0])):Infinity;
+  const below=pass.filter(x=>x[0]<ff);
+  const da=below.length?Math.max(...below.map(x=>x[0])):null;
+  const aa=AA(); let dq=null, st=null;
+  const ref=da!=null?da:(ff<Infinity?ff:null);
+  if(aa&&ref!=null){ dq=Math.round(Math.min(ref,aa)/aa*100); if(!fail.length&&da>=aa*0.85) dq=Math.max(dq,90);
+    st=dq>=80?'normal':dq>=70?'border':'delay'; if(da==null) st='delay'; }
+  return {da,lt:da==null?ff:null,dq,st,pass,fail,open:!fail.length};
+}
+const status=d=>S.st[d]||((domCalc(d)||{}).st)||null;
+
+/* ---------- findings ---------- */
+function asdG(){const g={}; ASD.forEach((a,i)=>{if(S.asd[i]) g[a[0]]=(g[a[0]]||0)+1;}); const A=['A1','A2','A3'].filter(k=>g[k]).length,B=['B1','B2','B3','B4'].filter(k=>g[k]).length; return {g,A,B,any:Object.keys(g).length>0};}
+const cnt=o=>Object.values(o).filter(Boolean).length;
+function leFind(){
+  const o=[], ca=CA(), p=k=>[num(k+'_r'),num(k+'_l')];
+  const ir=p('le_ir'), er=p('le_er'), tfa=p('le_tfa');
+  if([0,1].some(i=>ir[i]!=null&&er[i]!=null&&ir[i]>70&&er[i]<20)) o.push(['Q65.89','Hip IR > 70° 且 ER < 20°：股骨前傾過大']);
+  if(tfa.some(v=>v!=null&&v<-10)) o.push(['M21.869','Thigh-foot angle 內轉超過 10°：internal tibial torsion']);
+  if(S.f.le_hbl&&/lateral/.test(S.f.le_hbl)) o.push(['Q66.229','Heel bisector 落在第三趾外側：metatarsus adductus']);
+  const icd=num('le_icd'), imd=num('le_imd');
+  if(icd!=null&&icd>4) o.push(['M21.169','膝間距 > 4 cm：O 型腿'+(ca!=null&&ca<24?'（2 歲前多為生理性；X 光 MD angle > 11° 為異常）':'（X 光 MD angle > 11° 為異常）')]);
+  if(imd!=null&&imd>9) o.push(['M21.069','踝間距 > 9–10 cm：X 型腿'+(ca!=null&&ca<84?'（約 4 歲達高峰，之後慢慢變直）':'')]);
+  const nav=num('le_nav');
+  if(/flat/.test(S.f.le_arch||'')||(nav!=null&&nav>=1)) o.push(['M21.40',(/rigid/.test(S.f.le_arch||'')?'Rigid flat foot：需查 tarsal coalition 等原因':'扁平足')+(ca!=null&&ca<72?'；足弓 6–8 歲才成熟':'')+'。無症狀用現成鞋墊即可，有症狀建議訂製']);
+  const a=p('le_asis'), u=p('le_umb');
+  if(a[0]!=null&&a[1]!=null&&Math.abs(a[0]-a[1])>=2) o.push(['M21.70',`ASIS–MM 差 ${Math.abs(a[0]-a[1]).toFixed(1)} cm：結構性長短腳（2–4 cm shoe lift / guided growth；4–20 cm lengthening）`]);
+  else if(u[0]!=null&&u[1]!=null&&Math.abs(u[0]-u[1])>=2) o.push(['M21.70',`Umbilicus–MM 差 ${Math.abs(u[0]-u[1]).toFixed(1)} cm 但 ASIS–MM 未達 2 cm：功能性長短腳，留意骨盆與脊柱`]);
+  const gait=(S.f.pe_gait||[]), cc=S.f.cc||[];
+  if(gait.includes('toe walking')||cc.includes('toe walking')) o.push(['R26.89','墊腳尖走路：3 歲以下可正常；6 歲後難自行改善。鑑別 tethered cord、dystonia、CP、ASD']);
+  if((gait.includes('in-toeing')||cc.includes('toe-in gait'))&&!o.some(x=>/Q65|M21\.86|Q66\.2/.test(x[0]))) o.push(['R26.89','內八：4 歲前可為正常；請量 hip IR/ER、thigh-foot angle、heel bisector 找出層級']);
+  return o;
+}
+const icdName=c=>(ICD.find(x=>x[0]===c)||[])[1]||'';
+function suggest(){
+  const out=[], add=(c,why)=>{if(!out.some(x=>x.c===c)) out.push({c,n:icdName(c),why});}, info=why=>out.push({c:'',n:'',why});
+  const ca=CA(), cc=S.f.cc||[], und=S.f.und||[];
+  const del=d=>status(d)==='delay', motor=del('gm')||del('fm');
+  const dl=[motor&&'動作',del('lang')&&'語言',del('cog')&&'認知',del('soc')&&'社會情緒'].filter(Boolean);
+  if(dl.length>=2){
+    if(ca==null||ca<60){ add('F88',`${dl.length} 個領域遲緩（${dl.join('、')}），5 歲以下：GDD，暫時性診斷`); if(dl.length===4) add('F89','四個領域皆遲緩（講義用法）'); }
+    else add('F79','5 歲以上多領域遲緩：GDD 不再適用。需標準化智力（IQ < 70）加上適應功能評估後，改為 F70–F73');
+  } else if(dl.length===1){
+    if(del('lang')) add('F80.9',ca!=null&&ca<36?'僅語言遲緩、未滿 3 歲：late talker，70–80% 在 4 歲前追上；先確認聽力':'僅語言遲緩、3 歲以上：DLD。需排除聽損、IDD、ASD、缺乏語言刺激；4 歲後仍有困難多會持續');
+    if(motor) (ca!=null&&ca>=48)?add('F82','僅動作遲緩、4 歲以上：考慮 DCD，需排除神經與認知問題並影響日常'):add('R62.0','僅動作領域遲緩；DCD 要 4 歲以上才診斷');
+    if(del('cog')) add('R62.50','僅認知遲緩：建議標準化評估確認');
+    if(del('soc')) info('僅社會情緒遲緩：請勾選 ASD 特徵確認');
+  }
+  if(cc.includes('unclear articulation')||(S.on.speech&&(S.f.sp_err||[]).length)) add('F80.0','構音問題'+(ca!=null&&ca<48?'：未滿 4 歲，部分語音尚在發展中':'：4 歲應有 90–100% 可被聽懂')+'；排除聽損、唇顎裂、口腔動作問題');
+  const flu=(S.f.sp_flu||[]).filter(x=>x!=='fluent');
+  if(cc.includes('stuttering')||(S.on.speech&&flu.length)) add('F80.81',ca!=null&&ca<42&&!flu.some(x=>/blocks|secondary|awareness|6 months/.test(x))?'2–3.5 歲、無阻斷與副行為：可能是正常發育性不流暢，先觀察':'口吃：持續超過 6 個月或有阻斷、用力、副行為時診斷機率高');
+  const a=asdG();
+  if(S.on.asd&&a.any){
+    if(a.A===3&&a.B>=2) add('F84.0',`社交溝通三大類皆有、侷限重複行為 ${a.B}/4 類`+(ca!=null&&ca<24?'；未滿 2 歲，診斷宜保守':'')+'。需跨情境、持續且造成功能影響');
+    else if(a.A===3&&a.B<2&&ca!=null&&ca>=72) add('F80.82','社交溝通困難但侷限重複行為不足：考慮 SCD（學齡才診斷）');
+    else info(`ASD 特徵未達 DSM-5 組合：社交溝通 ${a.A}/3 類、侷限重複 ${a.B}/4 類（需 3/3 加上至少 2/4）`);
+  }
+  if(S.on.adhd){ const nI=cnt(S.adI), nH=cnt(S.adH), th=ca!=null&&ca>=204?5:6;
+    if(nI>=th||nH>=th){ if(ca!=null&&ca<48) info(`注意力 ${nI}/9、過動衝動 ${nH}/9 已達門檻，但未滿 4 歲不下 ADHD 診斷`);
+      else add(nI>=th&&nH>=th?'F90.2':nI>=th?'F90.0':'F90.1',`注意力 ${nI}/9、過動衝動 ${nH}/9（門檻 ${th}）。需 12 歲前出現、持續 6 個月、兩個以上情境`); }
+    else if(nI+nH>0) info(`ADHD 症狀未達門檻：注意力 ${nI}/9、過動衝動 ${nH}/9（門檻 ${th}）`);
+  }
+  if(cc.includes('learning difficulty')) info(ca!=null&&ca<72?'學習困難：SLD 要學齡才診斷':'學習困難：排除智能障礙、視聽知覺與環境因素後，考慮 F81.0 閱讀、F81.81 書寫、F81.2 算術');
+  if(S.on.tort&&(S.f.t_side||cc.includes('torticollis'))){ add(/^palpable/.test(S.f.t_mass||'')||(ca!=null&&ca<12)?'Q68.0':'M43.6','斜頸'+(ca!=null&&ca>=12?'；一歲後才出現需排除眼源性、頸椎與後顱窩病灶':'')); if((S.f.t_assoc||[]).includes('plagiocephaly')) add('Q67.3','合併斜頭'); }
+  if(S.on.le||cc.some(x=>/toe|flat|bow/.test(x))) leFind().forEach(x=>add(x[0],x[1]));
+  if(S.on.sco){ const cb=num('s_cobb'); if(cb!=null&&cb>=10){ const nm=und.includes('cerebral palsy');
+      add(nm?'M41.40':ca==null?'M41.129':ca<36?'M41.00':ca<120?'M41.119':'M41.129',`Cobb ${cb}°：`+(cb<20?'< 20° 運動治療與追蹤':cb<=40?'20–40° 背架（T7 以上 Milwaukee，T8 以下 Boston 等）':'> 40° 考慮手術')); }
+    else if(cb!=null) info(`Cobb ${cb}° 未達 10°，不符合脊柱側彎定義`); }
+  if(und.includes('cerebral palsy')) add('G80.9','Underlying：CP，請依型態改為 G80.0–G80.4');
+  if(und.includes('Down syndrome')) add('Q90.9','Underlying');
+  return out;
+}
+
+/* ---------- rendering: form ---------- */
+function inp(id,o={}){const n=o.type==='num'; const w=o.wide?'':`style="width:${(o.w||(n?3:9))+2}ch"`;
+  return `<input class="t" id="f-${id}" data-f="${id}" ${n?'inputmode="decimal"':''} ${w} placeholder="${esc(o.ph||'')}" value="${esc(S.f[id])}" autocomplete="off">`;}
+function chipHtml(f){const m=f.type==='multi', cur=S.f[f.id];
+  return `<span class="chips">${f.opts.map(o=>{const [e,z]=o.split('|'); const on=m?(cur||[]).includes(e):cur===e;
+    return `<button type="button" class="chip${on?' on':''}" data-c="${f.id}" data-v="${esc(e)}">${esc(e)}${z?`<small>${esc(z)}</small>`:''}</button>`;}).join('')}</span>`;}
+function fldHtml(f){
+  let h=`<div class="fld${f.wide?' wide':''}" data-fld="${f.id}">`;
+  if(f.l) h+=`<span class="l">${esc(f.l)}</span>`;
+  if(f.type==='num'||f.type==='text') h+=inp(f.id,f);
+  else if(f.type==='pair') h+=inp(f.id+'_r',{type:'num',w:3,ph:'R'})+'<span class="suf">/</span>'+inp(f.id+'_l',{type:'num',w:3,ph:'L'});
+  else { h+=chipHtml(f); if(f.x) h+=inp(f.id+'_x',{w:11,ph:f.ph||'其他'}); }
+  if(f.suf) h+=`<span class="suf">${f.suf}</span>`;
+  return h+'</div>';
+}
+function renderForm(){
+  let h=`<div class="pick"><h2>這次要問哪些區塊（取消勾選就不會出現在病歷）</h2><div class="pick-row">${PRESETS.map((p,i)=>`<button class="btn sm" data-preset="${i}">${p[0]}</button>`).join('')}<button class="btn sm" id="demoBtn" style="margin-left:auto">載入範例個案</button></div><div class="pick-secs">${SECTIONS.map(s=>`<label><input type="checkbox" data-on="${s.id}" id="on-${s.id}" ${S.on[s.id]?'checked':''}>${s.t}</label>`).join('')}</div></div>`;
+  for(const s of SECTIONS){ if(!S.on[s.id]) continue;
+    h+=`<section class="sec" id="sec-${s.id}"><h2>${s.t}<small>${s.zh||''}</small></h2><div class="sec-b">`;
+    if(s.note) h+=`<p class="hint">${s.note}</p>`;
+    if(s.custom) h+=`<div id="c-${s.id}" class="sec-b" style="padding:0"></div>`;
+    else h+=s.rows.map(r=>`<div class="row">${r.map(fldHtml).join('')}</div>`).join('')+`<div class="calc" id="calc-${s.id}" hidden></div>`;
+    h+='</div></section>';
+  }
+  $('#form').innerHTML=h;
+  renderMs(); renderAsd(); renderAdhd(); renderTests(); renderAx(); renderPlan(); dyn(); renderNote();
+}
+function renderMs(){
+  const box=$('#c-ms'); if(!box) return; const aa=AA(), c=corr();
+  let h=`<p class="hint">${aa==null?'先在 Patient Info 填年齡，這裡就只顯示該年齡前後的項目。':`依 ${c!=null?'矯正年齡 '+fmtM(c):'年齡 '+fmtM(aa)} 顯示。`}點一下 ✓ 會、再點一下 ✗ 不會、第三下清除。數字是預期最晚達成月齡。<button class="btn sm" id="msAll" style="margin-left:8px">${S.showAll?'只看相關年齡':'顯示全部項目'}</button></p>`;
+  for(const d of DOMS){ const m=MS[d], r=domCalc(d), st=status(d);
+    const above=m.items.filter(x=>aa!=null&&x[0]>aa).map(x=>x[0]); const hi=aa==null?999:Math.max(aa*1.2+1,above.length?Math.min(...above):0), lo=aa==null?0:aa*0.45;
+    h+=`<div class="dom"><div class="dom-h"><b>${m.t}</b><span class="suf">${m.zh}</span>`;
+    if(r) h+=`<span class="badge info">${r.da!=null?(r.open?'DA ≥ ':'DA ≈ ')+fmtM(r.da):'DA < '+fmtM(r.lt)}${r.dq!=null?' · DQ '+(r.da==null?'< ':'')+r.dq:''}</span>`;
+    if(st) h+=`<span class="badge ${st}">${{delay:'遲緩',border:'臨界',normal:'符合年齡'}[st]}${S.st[d]?'（手動）':''}</span>`;
+    h+=`<span class="sp"><button class="btn sm" data-msall="${d}">顯示的都會</button>${[['','自動'],['normal','正常'],['border','臨界'],['delay','遲緩']].map(([k,t])=>`<button class="chip${(S.st[d]||'')===k?' on':''}" data-st="${d}" data-v="${k}">${t}</button>`).join('')}</span></div><div class="mi">`;
+    m.items.forEach((x,i)=>{const v=S.ms[d+i]; if(!S.showAll&&v==null&&(x[0]>hi||x[0]<lo)) return;
+      h+=`<button class="m${v===1?' y':v===0?' n':''}" data-ms="${d+i}" data-vis="${d}" title="${esc(x[1])}"><i>${x[0]}m</i>${esc(x[2])}</button>`;});
+    h+='</div></div>';
+  }
+  h+=`<p class="hint">DQ = DA ÷ ${c!=null?'矯正年齡':'實際年齡'} × 100。自動判讀用 ≥ 80 正常、70–79 臨界、< 70 遲緩，這是門診初估，不能取代 CDIIT、Bayley 等標準化工具；右側按鈕可手動覆蓋。</p>`;
+  box.innerHTML=h;
+}
+function renderAsd(){ const box=$('#c-asd'); if(!box) return; const a=asdG(); let h='', last='';
+  h+=`<p class="hint">DSM-5 需要社交溝通三類（A1–A3）都有，加上侷限重複行為四類（B1–B4）至少兩類。項目來自講義，分類是我依 DSM-5 歸的。2 歲可以診斷。</p><div class="row"><span class="badge ${a.A===3&&a.B>=2?'delay':'info'}">社交溝通 ${a.A}/3 類 · 侷限重複 ${a.B}/4 類</span></div>`;
+  ASD.forEach((x,i)=>{ if(x[0]!==last){ if(last) h+='</div>'; last=x[0]; h+=`<div class="grp">${x[0]} ${ASDG[x[0]]}${a.g[x[0]]?'<span class="badge normal">有</span>':''}</div><div class="mi">`; }
+    h+=`<button class="chip${S.asd[i]?' on':''}" data-asd="${i}" title="${esc(x[1])}">${esc(x[2])}</button>`; });
+  box.innerHTML=h+'</div>'; }
+function renderAdhd(){ const box=$('#c-adhd'); if(!box) return; const ca=CA(), th=ca!=null&&ca>=204?5:6, nI=cnt(S.adI), nH=cnt(S.adH);
+  const list=(arr,k,o)=>`<div class="mi">${arr.map((x,i)=>`<button class="chip${o[i]?' on':''}" data-ad="${k}" data-i="${i}" title="${esc(x[0])}">${esc(x[1])}</button>`).join('')}</div>`;
+  box.innerHTML=`<p class="hint">4 歲以後才診斷；症狀需在 12 歲前出現、持續至少 6 個月、跨兩個以上情境。門檻每一向度 ${th}/9（17 歲以上為 5）。<span class="fix">講義寫注意力 7/9，DSM-5 為 6/9，這裡用 6。</span></p>
+  <div class="grp">Inattention<span class="badge ${nI>=th?'delay':'info'}">${nI}/9</span></div>${list(ADHD_I,'adI',S.adI)}
+  <div class="grp">Hyperactivity-impulsivity<span class="badge ${nH>=th?'delay':'info'}">${nH}/9</span></div>${list(ADHD_H,'adH',S.adH)}`; }
+function renderTests(){ const box=$('#c-tests'); if(!box) return;
+  box.innerHTML=`<p class="hint">到「評量換算」輸入分數後按「加入病歷」，結果會列在這裡；也可以直接打一行。</p>
+  <ul class="dxl">${S.tests.map((t,i)=>`<li><input class="t" data-test="${i}" id="test-${i}" value="${esc(t)}"><button class="btn sm" data-rmtest="${i}">移除</button></li>`).join('')}</ul>
+  <div class="row"><button class="btn sm" id="addTest">新增一行</button><a class="btn sm" href="#tools" style="text-decoration:none">開啟評量換算</a></div>`; }
+function renderAx(){ const box=$('#c-ax'); if(!box) return;
+  box.innerHTML=`<div class="grp">依目前填寫內容的建議（按「加入」才會進病歷）</div><div class="sug" id="sugBox"></div>
+  <div class="grp">已選診斷</div><ul class="dxl" id="dxList"></ul>
+  <div class="grp">搜尋 ICD-10 或自行新增</div><div class="row"><input class="t" id="icdq" style="flex:1" placeholder="輸入代碼、英文或中文，例如 F80、language、斜頸"><button class="btn sm" id="dxBlank">空白一行</button></div><div class="icd-res" id="icdRes" hidden></div>`;
+  renderSug(); renderDx(); }
+function renderSug(){ const box=$('#sugBox'); if(!box) return; const s=suggest();
+  box.innerHTML=s.length?s.map(x=>{const added=x.c&&S.dx.some(d=>d.c===x.c);
+    return `<div class="sg${added?' added':''}"><div>${x.c?`<span class="c">${x.c}</span> <b>${esc(x.n)}</b><br>`:''}<span class="w">${esc(x.why)}</span></div>${x.c?`<button class="btn sm${added?'':' pri'}" data-add="${x.c}" ${added?'disabled':''}>${added?'已加入':'加入'}</button>`:''}</div>`;}).join('')
+   :'<p class="hint">還沒有足夠資訊。完成里程碑檢核、勾選清單或下肢測量後，這裡會列出符合的診斷與年齡限制。</p>'; }
+function renderDx(){ const ul=$('#dxList'); if(!ul) return;
+  ul.innerHTML=S.dx.length?S.dx.map((d,i)=>`<li><span class="suf">${i+1}.</span><input class="t" data-dxn="${i}" id="dxn-${i}" value="${esc(d.n)}" placeholder="診斷"><input class="t" data-dxc="${i}" id="dxc-${i}" style="width:10ch;font-family:var(--mono)" value="${esc(d.c)}" placeholder="ICD"><button class="btn sm" data-rmdx="${i}">移除</button></li>`).join(''):'<li class="hint">尚未選擇。</li>'; }
+function renderPlan(){ const box=$('#c-plan'); if(!box) return;
+  box.innerHTML=`<div class="mi">${PLANS.map(p=>{const [e,z]=p.split('|'); return `<button class="chip${S.plan.includes(e)?' on':''}" data-plan="${esc(e)}">${esc(e)}${z?`<small>${esc(z)}</small>`:''}</button>`;}).join('')}</div>
+  <div class="row"><div class="fld wide"><span class="l">Other</span>${inp('plan_x',{wide:1,ph:'其他處置，用分號隔開'})}</div></div>
+  <div class="row"><div class="fld"><span class="l">Follow up in</span><span class="chips">${['1 wk','2 wk','1 month','3 months','after evaluation'].map(o=>`<button class="chip${S.f.fu===o?' on':''}" data-c="fu" data-v="${o}">${o}</button>`).join('')}</span>${inp('fu_x',{w:10,ph:'其他'})}</div></div>
+  <p class="hint">聯評追蹤：政府規定至少間隔一年；入小學前（升大班暑假前後）建議再評一次。</p>`; }
+function dyn(){
+  $$('[data-fld]').forEach(el=>{const f=FIELDS[el.dataset.fld]; if(f&&f.when) el.parentElement.hidden=!f.when(S.f);});
+  const set=(id,html)=>{const el=$('#calc-'+id); if(el){el.hidden=!html; el.innerHTML=html||'';}};
+  const ca=CA(), c=corr();
+  set('info',ca==null?'':`實際年齡 <b>${fmtM(ca)}</b>（${ca} 個月）`+(c!=null?`；早產，矯正年齡 <b>${fmtM(c)}</b>，2 歲前里程碑與 DQ 以矯正年齡計算`:''));
+  const t=termStr(), b=bbwClass();
+  set('birth',(t||b)?[t&&`<b>${t}</b>`,b&&`<span class="badge border">${b}</span>`,num('ga')!=null&&num('ga')<37&&'早產是 CP 與發展遲緩的危險因子'].filter(Boolean).join('　'):'');
+  set('le',leFind().map(x=>`<span class="badge info">${x[0]}</span> ${esc(x[1])}`).join('<br>')||(S.on.le?'參考值：hip IR 15–25° 為一般範圍，IR > 70° 且 ER < 20° 懷疑股骨前傾；thigh-foot angle 兒童 5–10°；foot progression angle −5 至 +20°。':''));
+  const cb=num('s_cobb'), rs=S.f.s_risser;
+  const risk=[ca!=null&&ca<144&&'12 歲前發生',S.f.s_men==='not yet'&&'初經前',rs!=null&&+rs<2&&'Risser < 2',cb!=null&&cb>20&&S.f.sex==='girl'&&'Cobb > 20° 的女生'].filter(Boolean);
+  set('sco',cb==null&&!risk.length?'':[cb!=null&&(cb<10?'未達 10°，不算側彎':cb<20?'< 20°：運動治療':cb<=40?'20–40°：背架，成功定義為 Cobb 增加 < 5°':'> 40°：考慮手術'),cb!=null&&cb>100&&'胸椎 Cobb > 100° 會限制胸腔擴張，安排肺功能',risk.length&&`<span class="badge border">易惡化</span> ${risk.join('、')}`,'骨骼成熟：Risser 4（女）或 5（男）、初經後兩年'].filter(Boolean).join('<br>'));
+  renderSug();
+}
+
+/* ---------- note ---------- */
+function buildNote(){
+  const L=[], K=S.keep, on=id=>S.on[id];
+  const line=(lab,v)=>{if(v||K) L.push(lab+': '+(v||''));};
+  const sec=(title,fn)=>{const s=L.length; L.push('','['+title+']'); const n=L.length; fn(); if(L.length===n) L.length=s;};
+  const generic=id=>{const s=SECTIONS.find(x=>x.id===id); s.rows.forEach(r=>{const parts=[]; r.forEach(f=>{let v=V(f.id); if(!v&&!(K&&f.l)) return; if(v&&f.suf) v+=(f.suf==='°'?'':' ')+f.suf;
+      if(f.l) parts.push(f.l.replace(/\s*[一-鿿].*$/,'')+': '+v); else if(parts.length) parts[parts.length-1]+=' '+v; else parts.push(v);}); if(parts.length) L.push(parts.join('; '));});};
+  if(on('info')){
+    const a=ageStr(), w=V('with'), c=corr();
+    if(a||w||S.f.sex||K) L.push(`${a||(K?'y m':'')} ${S.f.sex||'child'}${c!=null?` (corrected age ${fmtM(c)})`:''}, come with ${w}`.trim().replace(/, come with$/,K?', come with':''));
+    const g=[num('bh')!=null&&`BH: ${S.f.bh} cm`,num('bw')!=null&&`BW: ${S.f.bw} kg`,num('hc')!=null&&`HC: ${S.f.hc} cm`].filter(Boolean); if(g.length) L.push(g.join(', '));
+    line('Underlying',V('und')); line('C.C',V('cc')); line('Most concern',V('concern')); if(V('refer')) line('Refer from',V('refer'));
+  }
+  if(on('birth')) sec('Birth History',()=>{
+    const gp=(S.f.g||S.f.p)?`G${S.f.g||''}P${S.f.p||''}`:(K?'G P':''), b=bbwClass();
+    const mode=S.f.mode?(S.f.mode==='C/S'&&V('csr')?`C/S (${V('csr')})`:S.f.mode):(K?'NSD/C/S':'');
+    const p=[gp,S.f.ga?`${S.f.ga} wk`:(K?'wk':''),termStr()||(K?'full term':''),mode,S.f.bbw?`BBW: ${S.f.bbw} gm${b?' ('+b+')':''}`:(K?'BBW: gm':'')].filter(Boolean);
+    if(p.length) L.push(p.join(', '));
+    line('Perinatal history',V('peri')); line('Hospitalization',V('hosp')); line('OPD follow-up',V('opd')); line('OAE',V('oae'));
+  });
+  if(on('dev')) sec('Developmental milestones',()=>{
+    const fr=(lab,id)=>{const v=S.f[id]; return v?(/not|無|no\b/i.test(v)?`${lab}: ${v}`:`${lab} at ${v}`):(K?`${lab} at`:'');};
+    const row=(lab,arr)=>{const p=arr.map(x=>fr(x[0],x[1])).filter(Boolean); if(p.length) L.push(lab+': '+p.join(', '));};
+    row('GM',[['sit without support','d_sit'],['stand','d_stand'],['walk','d_walk'],['jump','d_jump'],['stairs','d_stair']]);
+    row('FM',[['grasp','d_grasp'],['pincer grasp','d_pincer'],['throw ball/piling up','d_block'],['door knob/turn book page','d_knob']]);
+    row('Speech',[['first word','d_word'],['phrase & short sentences','d_phrase']]);
+    if(V('d_regress')&&V('d_regress')!=='no') line('Regression',V('d_regress')); else if(S.f.d_regress==='no') L.push('No regression');
+    line('Feeding',V('feed'));
+  });
+  if(on('school')) sec('School/early intervention',()=>{
+    const s=V('sch'), c=V('cls'); if(s||c||K) L.push('School: '+s+(c?` (${c})`:''));
+    line('School performance',V('perf')); line('Regular early intervention',V('ei'));
+  });
+  if(on('family')) sec('Family',()=>{
+    const par=(lab,k)=>{const p=[S.f[k+'_age']&&S.f[k+'_age']+' y/o',S.f[k+'_edu'],S.f[k+'_job']].filter(Boolean); if(p.length||K) L.push(lab+': '+p.join(', '));};
+    par('Father','fa'); par('Mother','mo'); line('Siblings',V('sib')); line('Family history',V('fhx'));
+    const cg=V('cg'); if(cg||K) L.push('Caregiver: '+cg+(S.f.cg_t?` (${S.f.cg_t})`:''));
+    line('Care',V('care')); line('Home language',V('lang'));
+  });
+  if(on('ms')) sec('Developmental assessment',()=>{
+    const W={delay:'delayed',border:'borderline',normal:'age-appropriate'}; const rows=[];
+    DOMS.forEach(d=>{const r=domCalc(d), st=status(d); if(!r&&!st) return; let s=MS[d].t+': '+(W[st]||'');
+      if(r){ const da=r.da!=null?`DA ${r.open?'at least':'about'} ${fmtM(r.da)}`:`DA below ${fmtM(r.lt)}`; s+=`${st?', ':''}${da}${r.dq!=null?` (DQ ${r.da==null?'<':''}${r.dq})`:''}`;
+        const top=r.pass.slice().sort((a,b)=>b[0]-a[0]).slice(0,3).map(x=>x[1]); if(top.length) s+='; able to: '+top.join(', ');
+        if(r.fail.length) s+='; not yet: '+r.fail.slice(0,4).map(x=>x[1]).join(', '); }
+      rows.push(s);});
+    if(rows.length){ if(corr()!=null) L.push(`(corrected age ${fmtM(corr())} used; DA/DQ estimated from milestone checklist)`); else L.push('(DA/DQ estimated from milestone checklist)'); rows.forEach(r=>L.push(r)); }
+  });
+  if(on('pe')) sec('PE',()=>generic('pe'));
+  if(on('speech')) sec('Speech',()=>generic('speech'));
+  if(on('asd')) sec('ASD checklist',()=>{ const a=asdG(); if(!a.any) return;
+    const pick=p=>ASD.filter((x,i)=>S.asd[i]&&x[0][0]===p).map(x=>x[1]).join('; ');
+    if(pick('A')) L.push('Social communication: '+pick('A')); if(pick('B')) L.push('Restricted/repetitive behaviors: '+pick('B'));
+    L.push(`DSM-5 domains: social communication ${a.A}/3, restricted/repetitive ${a.B}/4`); });
+  if(on('adhd')) sec('ADHD checklist',()=>{ const f=(arr,o)=>arr.filter((x,i)=>o[i]).map(x=>x[0]).join('; '); const nI=cnt(S.adI), nH=cnt(S.adH);
+    if(nI) L.push(`Inattention (${nI}/9): ${f(ADHD_I,S.adI)}`); if(nH) L.push(`Hyperactivity-impulsivity (${nH}/9): ${f(ADHD_H,S.adH)}`); });
+  if(on('tort')) sec('Torticollis',()=>generic('tort'));
+  if(on('le')) sec('Lower limb',()=>generic('le'));
+  if(on('sco')) sec('Scoliosis',()=>generic('sco'));
+  if(on('tests')) sec('Standardized tests',()=>S.tests.filter(Boolean).forEach(t=>L.push(t)));
+  if(on('ax')) sec('Assessment',()=>S.dx.filter(d=>d.n||d.c).forEach((d,i)=>L.push(`${i+1}. ${d.n}${d.c?` (${d.c})`:''}`)));
+  if(on('plan')) sec('Plan',()=>{ const p=PLANS.map(en).filter(x=>S.plan.includes(x)).concat((S.f.plan_x||'').split(/[;；]/).map(s=>s.trim()).filter(Boolean));
+    const fu=[S.f.fu,S.f.fu_x].filter(Boolean).join(', '); if(fu) p.push('OPD follow-up in '+fu.replace(/^after/,'after').replace(/^in /,'')); p.forEach((x,i)=>L.push(`${i+1}. ${x}`)); });
+  return L.join('\n').replace(/follow-up in after/,'follow-up after').trim();
+}
+function renderNote(){ const n=$('#note'); n.value=buildNote(); n.placeholder='從左邊開始點選或輸入，病歷會即時出現在這裡。\n\n想先看效果，可以按「載入範例個案」。'; }
+
+/* ---------- events ---------- */
+const changed=id=>{ save(); if(['ageY','ageM','ga'].includes(id)){renderMs();renderAdhd();} dyn(); renderNote(); };
+function addDx(c,n){ if(c&&S.dx.some(d=>d.c===c)) return; S.dx.push({c,n});
+  AUTOPLAN.forEach(([re,ix])=>{ if(re.test(c)) ix.forEach(i=>{const p=en(PLANS[i]); if(!S.plan.includes(p)) S.plan.push(p);}); });
+  renderDx(); renderSug(); renderPlan(); save(); renderNote(); }
+$('#form').addEventListener('input',e=>{ const t=e.target, d=t.dataset;
+  if(d.f!=null){ S.f[d.f]=t.value; changed(d.f); }
+  else if(d.dxn!=null){ S.dx[+d.dxn].n=t.value; save(); renderNote(); }
+  else if(d.dxc!=null){ S.dx[+d.dxc].c=t.value; save(); renderNote(); }
+  else if(d.test!=null){ S.tests[+d.test]=t.value; save(); renderNote(); }
+  else if(t.id==='icdq'){ const q=t.value.trim().toLowerCase(), box=$('#icdRes'); const r=q?ICD.filter(x=>x.join(' ').toLowerCase().includes(q)).slice(0,30):[];
+    box.hidden=!q; box.innerHTML=r.map(x=>`<button data-add="${x[0]}"><span>${x[0]}</span>${esc(x[1])}<small>${esc(x[2])}</small></button>`).join('')||(q?`<button data-custom="1">找不到，改用自行輸入「${esc(t.value)}」</button>`:''); }
+});
+$('#form').addEventListener('change',e=>{ const d=e.target.dataset; if(d.on){ S.on[d.on]=e.target.checked; save(); renderForm(); } });
+$('#form').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const d=b.dataset;
+  if(d.c){ const f=FIELDS[d.c]; if(f&&f.type==='multi'){ const a=S.f[d.c]||(S.f[d.c]=[]), i=a.indexOf(d.v); i<0?a.push(d.v):a.splice(i,1); b.classList.toggle('on'); }
+    else { const was=S.f[d.c]===d.v; S.f[d.c]=was?'':d.v; $$(`[data-c="${d.c}"]`).forEach(x=>x.classList.toggle('on',!was&&x===b)); }
+    if(d.c==='sex') renderMs(); changed(d.c); }
+  else if(d.ms){ const v=S.ms[d.ms]; if(v==null) S.ms[d.ms]=1; else if(v===1) S.ms[d.ms]=0; else delete S.ms[d.ms]; renderMs(); changed(); }
+  else if(d.msall){ $$(`[data-vis="${d.msall}"]`).forEach(x=>{ if(S.ms[x.dataset.ms]==null) S.ms[x.dataset.ms]=1; }); renderMs(); changed(); }
+  else if(d.st!=null){ if(d.v) S.st[d.st]=d.v; else delete S.st[d.st]; renderMs(); changed(); }
+  else if(b.id==='msAll'){ S.showAll=!S.showAll; renderMs(); save(); }
+  else if(d.asd!=null){ S.asd[d.asd]=!S.asd[d.asd]; renderAsd(); changed(); }
+  else if(d.ad){ S[d.ad][d.i]=!S[d.ad][d.i]; renderAdhd(); changed(); }
+  else if(d.add){ addDx(d.add,icdName(d.add)); }
+  else if(d.custom){ addDx('',$('#icdq').value.trim()); }
+  else if(b.id==='dxBlank'){ S.dx.push({c:'',n:''}); renderDx(); save(); const l=$('#dxn-'+(S.dx.length-1)); if(l) l.focus(); }
+  else if(d.rmdx!=null){ S.dx.splice(+d.rmdx,1); renderDx(); renderSug(); save(); renderNote(); }
+  else if(d.plan){ const i=S.plan.indexOf(d.plan); i<0?S.plan.push(d.plan):S.plan.splice(i,1); b.classList.toggle('on'); save(); renderNote(); }
+  else if(b.id==='addTest'){ S.tests.push(''); renderTests(); save(); const l=$('#test-'+(S.tests.length-1)); if(l) l.focus(); }
+  else if(d.rmtest!=null){ S.tests.splice(+d.rmtest,1); renderTests(); save(); renderNote(); }
+  else if(d.preset!=null){ S.on=Object.fromEntries(PRESETS[+d.preset][1].map(i=>[i,true])); save(); renderForm(); }
+  else if(b.id==='demoBtn'){ demo(); }
+});
+function demo(){ const k=S.keep; S=fresh(); S.keep=k; S.on.speech=true;
+  Object.assign(S.f,{ageY:'1',ageM:'8',sex:'boy',with:['mother'],und:['prematurity'],cc:['gross motor delay','speech delay'],concern:'not walking independently, few words (範例個案)',refer:'pediatrics',
+    g:'1',p:'1',ga:'34',mode:'C/S',csr:['twins'],bbw:'1980',peri:['NICU admission','neonatal jaundice s/p phototherapy'],hosp:'nil',opd:'nil',oae:'passed',
+    d_sit:'9m',d_stand:'1y2m',d_walk:'not yet',d_grasp:'5m',d_pincer:'1y',d_word:'1y4m',d_phrase:'not yet',d_regress:'no',feed:['soft solid'],
+    sch:'not yet',ei:['none'],fa_age:'35',fa_edu:'college',fa_job:'engineer',mo_age:'33',mo_edu:'college',mo_job:'nurse',sib:'twin sister, normal development',cg:['grandparents'],cg_t:'daytime',care:['basic care','screen time > 1 hr/day'],lang:['Mandarin','Taiwanese'],
+    pe_gen:['alert','cooperative'],pe_eye:'good',pe_name:'consistent',pe_ja:'present',pe_tone:['hypotonia'],pe_tone_x:'trunk',pe_rom:'full',pe_dtr:'normal (++)',pe_prim:'integrated',pe_gait:['not yet ambulatory']});
+  const mark=(d,n,fails)=>{for(let i=0;i<n;i++) S.ms[d+i]=1; fails.forEach(i=>S.ms[d+i]=0);};
+  mark('gm',12,[12,13]); mark('fm',7,[7]); mark('lang',6,[6,7]); mark('cog',8,[]); mark('soc',6,[]);
+  save(); renderForm(); }
+async function copy(btn){ const ta=$('#note'), lab=btn.textContent; if(!ta.value){ btn.textContent='還沒有內容'; setTimeout(()=>btn.textContent=lab,1400); return; }
+  let ok=false; try{ await navigator.clipboard.writeText(ta.value); ok=true; }catch(e){ ta.focus(); ta.select(); try{ ok=document.execCommand('copy'); }catch(_){} }
+  btn.textContent=ok?'已複製':'已選取，請按 Ctrl/⌘ + C'; setTimeout(()=>btn.textContent=lab,1700); }
+$('#copyBtn').onclick=e=>copy(e.currentTarget); $('#copyBtn2').onclick=e=>copy(e.currentTarget);
+$('#jumpNote').onclick=()=>$('#notePane').scrollIntoView({behavior:'smooth'});
+$('#keepEmpty').checked=S.keep; $('#keepEmpty').onchange=e=>{S.keep=e.target.checked; save(); renderNote();};
+let armed=0; $('#clearBtn').onclick=e=>{ const b=e.currentTarget; if(!armed){ armed=1; b.textContent='再按一次確認清空'; setTimeout(()=>{armed=0; b.textContent='清空，下一位';},3000); return; }
+  armed=0; b.textContent='清空，下一位'; const on=S.on, k=S.keep; S=fresh(); S.on=on; S.keep=k; save(); renderForm(); window.scrollTo(0,0); };
+
+/* ---------- tools view ---------- */
+const erf=x=>{const s=x<0?-1:1; x=Math.abs(x); const t=1/(1+0.3275911*x); return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x));};
+const Phi=z=>0.5*(1+erf(z/Math.SQRT2));
+function invPhi(p){ if(p<=0) return -Infinity; if(p>=1) return Infinity;
+  const a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.357751867269,-30.66479806614716,2.506628277459239],b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],c=[-0.007784894002430293,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],d=[0.007784695709041462,0.3224671290700398,2.445134137142996,3.754408661907416];
+  let q,r; if(p<0.02425){q=Math.sqrt(-2*Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p>1-0.02425){q=Math.sqrt(-2*Math.log(1-p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  q=p-0.5; r=q*q; return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1); }
+const band=z=>z<-2?['delay','低於 −2 SD']:z<-1.5?['border','−1.5 至 −2 SD']:z<-1?['watch','−1 至 −1.5 SD']:['normal','−1 SD 以內'];
+function renderTools(){
+  const aa=AA();
+  $('#v-tools').innerHTML=`
+  <section class="sec"><h2>DQ 發展商數<small>DA ÷ CA × 100</small></h2><div class="sec-b">
+    <div class="tool-row"><span class="l">DA</span><input class="t" id="dq-da" inputmode="decimal" style="width:6ch"><span class="suf">月</span><span class="l">CA</span><input class="t" id="dq-ca" inputmode="decimal" style="width:6ch" value="${aa!=null?aa:''}"><span class="suf">月</span></div>
+    <div class="tool-row"><span class="l">領域或工具</span><input class="t" id="dq-lb" style="flex:1;min-width:8ch" placeholder="例：CDIIT 粗動作"></div>
+    <div class="out" id="dq-out"></div>
+    <p class="hint">早產兒 2 歲前 CA 用矯正年齡${corr()!=null?`（已帶入本個案矯正年齡 ${fmtM(corr())}）`:''}。各工具有自己的切點；沒有時抓 −1.5 SD（DQ 約 77）。</p></div></section>
+  <section class="sec"><h2>分數互換<small>SD、百分位、標準分數、T 分數</small></h2><div class="sec-b">
+    <div class="tool-row"><select id="cv-type" class="btn"><option value="std">標準分數（平均 100、SD 15）</option><option value="t">T 分數（平均 50、SD 10）</option><option value="sc">量尺分數（平均 10、SD 3）</option><option value="z">z 分數（幾個 SD）</option><option value="pr">百分位 PR</option></select><input class="t" id="cv-val" inputmode="decimal" style="width:8ch" placeholder="數值"></div>
+    <div class="out" id="cv-out"></div>
+    <p class="hint">假設常態分布。−1 SD = PR 16 = 標準分數 85 = T 40；−1.5 SD = PR 7 = 77.5 = T 35；−2 SD = PR 2 = 70 = T 30。</p></div></section>
+  ${TOOLS.map(t=>`<section class="sec"><h2>${t.n}<small>${t.zh}</small></h2><div class="sec-b">
+    <div class="tool-row"><span class="l">${t.unit}</span><input class="t" data-tool="${t.id}" id="tv-${t.id}" inputmode="decimal" style="width:8ch" placeholder="${t.ph}"><input class="t" id="tl-${t.id}" style="flex:1;min-width:8ch" placeholder="分測驗或領域（選填）"></div>
+    <div class="out" id="to-${t.id}"></div><p class="hint">${t.note}</p></div></section>`).join('')}
+  <section class="sec full"><h2>判讀標準一覽</h2><div class="sec-b"><div class="tw"><table class="r"><thead><tr><th>工具</th><th>正常</th><th>臨界 / 疑似</th><th>遲緩</th></tr></thead><tbody>
+    <tr><td>CDIIT</td><td class="n">&gt; −1.5 SD</td><td class="n">−1.5 至 −2 SD（或 −1 至 −2 SD）</td><td class="n">&lt; −2 SD</td></tr>
+    <tr><td>Bayley / WPPSI-IV</td><td class="n">≥ 90（80–89 正常中下）</td><td class="n">70–79（PR 3–8）</td><td class="n"><span class="fix">≤ 69</span></td></tr>
+    <tr><td>PDMS-2</td><td class="n">≥ 90</td><td class="n">80–89</td><td class="n">≤ 79</td></tr>
+    <tr><td>Movement ABC</td><td class="n">PR &gt; 15</td><td class="n">PR 5–15</td><td class="n">PR &lt; 5</td></tr>
+    <tr><td>學前兒童語言障礙評量表</td><td class="n">T ≥ 40</td><td class="n">T 30–39</td><td class="n">T ≤ 29</td></tr>
+    <tr><td>CLST</td><td class="n">≥ −1.5 SD</td><td></td><td class="n">&lt; −1.5 SD</td></tr>
+    <tr><td>沒有專屬切點的工具</td><td class="n">DQ ≥ 77.5</td><td></td><td class="n">DQ 低於 −1.5 SD</td></tr></tbody></table></div>
+    <p class="hint">原始分數轉換仍需各工具的常模手冊，這裡只處理判讀與互換。</p></div></section>
+  <section class="sec full"><h2>診斷與年齡限制速查</h2><div class="sec-b">
+    <details open><summary>什麼年齡可以下什麼診斷</summary><ul>
+      <li>GDD（F88）：僅限 5 歲以下，至少兩個領域遲緩，屬暫時性診斷。</li><li>IDD（F70–F73）：IQ 70 以下且適應功能受限；發病在 18 歲前（AAIDD 為 22 歲前）。</li>
+      <li>Late talker：3 歲以前，70–80% 在 4 歲前追上。DLD（F80.9）：3 歲以後；4 歲仍有困難多會持續到學齡。</li>
+      <li>Speech sound disorder（F80.0）：4 歲應 90–100% 可被聽懂，8 歲語音成熟。</li><li>口吃（F80.81）：多在 2–7 歲；75–80% 青春期前自癒，持續到 8–10 歲易成慢性。</li>
+      <li>SCD（F80.82）、SLD（F81）：學齡才診斷。</li><li>ASD（F84.0）：2 歲可診斷，3–5 歲為診斷高峰。</li><li>ADHD（F90）：4 歲後診斷，症狀 12 歲前出現。</li><li>DCD（F82）：4 歲以上才診斷。</li></ul></details>
+    <details><summary>IDD 嚴重度</summary><div class="tw"><table class="r"><thead><tr><th>代碼</th><th>程度</th><th>IQ</th><th>成年時約等於</th></tr></thead><tbody>
+      <tr><td class="n">F70</td><td>Mild</td><td class="n">50–55 至約 70</td><td>9–12 歲</td></tr><tr><td class="n">F71</td><td>Moderate</td><td class="n">35–40 至 50–55</td><td>6–9 歲</td></tr>
+      <tr><td class="n">F72</td><td>Severe</td><td class="n">20–25 至 35–40</td><td>3–6 歲</td></tr><tr><td class="n">F73</td><td>Profound</td><td class="n">低於 20–25</td><td>小於 3 歲</td></tr></tbody></table></div></details>
+    <details><summary>聲母習得年齡</summary><div class="tw"><table class="r"><thead><tr><th>年齡</th><th>聲母</th><th>口訣</th></tr></thead><tbody>
+      <tr><td class="n">3 歲</td><td>ㄅ ㄇ ㄉ ㄋ ㄍ ㄏ</td><td>爸爸媽媽買蛋糕喝牛奶</td></tr><tr><td class="n">4 歲</td><td>ㄆ ㄊ ㄎ ㄌ ㄈ ㄐ</td><td>跑跑跳跳快樂飛機</td></tr><tr><td class="n">4 歲半</td><td>ㄒ ㄑ</td><td>小企鵝</td></tr>
+      <tr><td class="n">5 歲</td><td>ㄗ ㄙ</td><td>早安禮拜三</td></tr><tr><td class="n">5 歲半</td><td>ㄘ</td><td>草莓</td></tr><tr><td class="n">6 歲</td><td>ㄓ ㄔ ㄕ ㄖ</td><td>蜘蛛樹上吃肉肉</td></tr></tbody></table></div></details>
+    <details><summary>ASD、ADHD 常用量表</summary><ul><li>ASD 篩檢：M-CHAT-R/F（家長填）、SCQ（4 歲以上、心理年齡大於 2 歲）。</li><li>ASD 診斷：ADOS-2（12 個月至成人，直接觀察）、ADI-R（照顧者訪談，問 4–5 歲時表現）。</li><li>ASD 嚴重度：CARS-2（2 歲以上）、SRS-2（T 分數）。</li><li>ADHD：SNAP-IV（家長與老師）、CPT、WISC-V 的工作記憶與處理速度。</li></ul></details>
+    <details><summary>下肢正常值與判讀</summary><ul>
+      <li>Neck-shaft angle：出生 160° → 5 歲 140° → 成人 120–130°。</li><li>Femoral anteversion：1 歲前 39° → 2 歲 31° → 10 歲 24° → 16 歲 16°。<span class="fix">過大容易內八，過小容易外八。</span></li>
+      <li>膝：2 歲前 O 型 → 2 歲變直 → 約 4 歲 X 型 → 11 歲前慢慢變直。膝間距 &gt; 4 cm 為 O 型腿；踝間距 &gt; 9–10 cm 為 X 型腿。</li>
+      <li>Thigh-foot angle：兒童 5–10°，青少年 15°。Foot progression angle −5 至 +20°。Fick angle 5–18°。</li>
+      <li>內八 4 歲前可正常。Hip IR &gt; 70° 且 ER &lt; 20°：股骨前傾；thigh-foot angle 內轉 &gt; 10°：脛骨內轉；heel bisector 落在外側趾：metatarsus adductus。</li>
+      <li>O 型腿 MD angle &gt; 11° 為病理性；&gt; 16° 或持續惡化用輔具，3 歲後考慮手術且不超過 4 歲。</li>
+      <li>扁平足：2 歲前不一定看得到足弓，6–8 歲成熟。Navicular drop ≥ 1 cm；too many toes 超過 2 趾（單側要想 TP）；踮腳沒有足弓為 rigid。</li>
+      <li>墊腳尖：3 歲以下正常，多數 6 歲前改善，6 歲後較難自癒。</li><li>長短腳：差 2 cm 以上。2–4 cm shoe lift、guided growth、epiphysiodesis；4–20 cm lengthening。</li></ul></details>
+    <details><summary>脊柱側彎</summary><ul><li>定義：冠狀面 Cobb ≥ 10°。&lt; 20° 運動；20–40° 背架（T7 以上 Milwaukee，T8 以下 Boston、Chêneau，夜用 Charleston）；&gt; 40° 手術。</li>
+      <li><span class="fix">胸椎側彎 Cobb &gt; 100° 會限制胸腔擴張，需做肺功能。</span></li><li>骨骼成熟：Risser 4（女）、5（男），或初經後兩年。</li><li>易惡化：12 歲前發生、初經前、Risser &lt; 2、Cobb &gt; 20° 的女生。</li></ul></details>
+  </div></section>`;
+}
+function addTest(line,btn){ S.tests.push(line); S.on.tests=true; save(); renderForm(); btn.textContent='已加入'; btn.disabled=true; }
+$('#v-tools').addEventListener('input',e=>{ const t=e.target;
+  if(t.id==='dq-da'||t.id==='dq-ca'||t.id==='dq-lb'){ const da=+$('#dq-da').value, ca=+$('#dq-ca').value, o=$('#dq-out');
+    if(!da||!ca){o.innerHTML='';return;} const dq=Math.round(da/ca*100), z=(dq-100)/15, b=band(z);
+    o.innerHTML=`<b>DQ ${dq}</b><span class="badge ${b[0]}">${b[1]}</span><span class="suf">約 PR ${Math.round(Phi(z)*100)}</span><button class="btn sm pri" data-line="${esc(($('#dq-lb').value||'Developmental quotient')+`: DA ${da}m / CA ${ca}m, DQ ${dq}`)}">加入病歷</button>`; }
+  else if(t.id==='cv-val'||t.id==='cv-type'){ const v=parseFloat($('#cv-val').value), ty=$('#cv-type').value, o=$('#cv-out'); if(isNaN(v)){o.innerHTML='';return;}
+    const z=ty==='std'?(v-100)/15:ty==='t'?(v-50)/10:ty==='sc'?(v-10)/3:ty==='z'?v:invPhi(Math.min(99.99,Math.max(0.01,v))/100), b=band(z), pr=Phi(z)*100;
+    o.innerHTML=`<span class="badge ${b[0]}">${b[1]}</span><span>z <b>${z.toFixed(2)}</b></span><span>PR <b>${pr<1?pr.toFixed(1):Math.round(pr)}</b></span><span>標準分數 <b>${Math.round(100+15*z)}</b></span><span>T <b>${Math.round(50+10*z)}</b></span><span>量尺 <b>${Math.round(10+3*z)}</b></span>`; }
+  else if(t.dataset.tool||/^tl-/.test(t.id)){ const id=t.dataset.tool||t.id.slice(3), T=TOOLS.find(x=>x.id===id), v=parseFloat($('#tv-'+id).value), o=$('#to-'+id); if(isNaN(v)){o.innerHTML='';return;}
+    const r=T.f(v), lb=$('#tl-'+id).value.trim();
+    o.innerHTML=`<span class="badge ${r[0]}">${{delay:'遲緩',border:'臨界',watch:'正常中下',normal:'正常'}[r[0]]}</span><span class="suf">${r[1]}</span><button class="btn sm pri" data-line="${esc(`${T.n}${lb?' '+lb:''}: ${T.unit} ${v}, ${STLBL[r[0]]} (${r[1].replace(/（.*）/,'')})`)}">加入病歷</button>`; }
+});
+$('#v-tools').addEventListener('change',e=>{ if(e.target.id==='cv-type') e.target.dispatchEvent(new Event('input',{bubbles:true})); });
+$('#v-tools').addEventListener('click',e=>{ const b=e.target.closest('[data-line]'); if(b) addTest(b.dataset.line,b); });
+
+/* ---------- routing ---------- */
+function route(){ const t=location.hash==='#tools'; $('#v-intake').hidden=t; $('#v-tools').hidden=!t; $('.mbar').style.display=t?'none':'';
+  $('#tab-intake').classList.toggle('on',!t); $('#tab-tools').classList.toggle('on',t); if(t) renderTools(); window.scrollTo(0,0); }
+window.addEventListener('hashchange',route);
+renderForm(); route();
+})();
+
+</script>
+</body>
+</html>
